@@ -5,9 +5,9 @@ FROM oculair/openhandsapi:latest
 WORKDIR /openhands/code
 
 # Copy Letta integration files
-COPY ../requirements.txt /openhands/code/letta-requirements.txt
-COPY ../letta_openwebuifunction.py /openhands/code/letta_openwebuifunction.py
-COPY ../../openhands/runtime/plugins/agent_skills/letta_reporter /openhands/runtime/plugins/agent_skills/letta_reporter/
+COPY letta/requirements.txt /openhands/code/letta-requirements.txt
+COPY letta/letta_openwebuifunction.py /openhands/code/letta_openwebuifunction.py
+COPY openhands/runtime/plugins/agent_skills/letta_reporter /openhands/runtime/plugins/agent_skills/letta_reporter/
 
 # Install Letta requirements
 RUN pip install -r letta-requirements.txt
