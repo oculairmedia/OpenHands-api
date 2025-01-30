@@ -1,5 +1,7 @@
-frontend/node_modules
-config.toml
-.envrc
-.env
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
 .git
+.gitignore
+README.md
