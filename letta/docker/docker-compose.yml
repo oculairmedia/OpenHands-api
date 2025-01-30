@@ -3,8 +3,8 @@ version: '3.8'
 services:
   openhands:
     build:
-      context: ../..  # Root of OpenHands repository
-      dockerfile: letta/docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -14,5 +14,5 @@ services:
       - DEBUG=true  # Enable debug logging
     volumes:
       # Mount workspace for development (optional)
-      - ../../workspace:/openhands/workspace
+      - ../../../workspace:/openhands/workspace
     restart: unless-stopped
