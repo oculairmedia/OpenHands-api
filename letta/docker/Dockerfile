@@ -10,7 +10,7 @@ COPY letta/letta_openwebuifunction.py /openhands/code/letta_openwebuifunction.py
 COPY openhands/runtime/plugins/agent_skills/letta_reporter /openhands/runtime/plugins/agent_skills/letta_reporter/
 
 # Install Letta requirements
-RUN pip install -r letta-requirements.txt
+RUN pip install -r /openhands/code/letta-requirements.txt
 
 # Set default environment variables (can be overridden at runtime)
 ENV LETTA_BASE_URL=https://letta2.oculair.ca
