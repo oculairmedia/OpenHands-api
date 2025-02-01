@@ -24,33 +24,31 @@ USER openhands
 WORKDIR /openhands
 
 # Install micromamba
-RUN cd /openhands/micromamba/bin && \
-    wget -q https://micro.mamba.pm/api/micromamba/linux-64/latest -O - | tar -xj && \
-    chmod +x micromamba && \
-    ./micromamba shell init -s bash -p /openhands/micromamba && \
-    echo "source /openhands/micromamba/etc/profile.d/micromamba.sh" >> ~/.bashrc
+RUN curl -Ls https://micro.mamba.pm/install.sh | bash && \
+    mkdir -p ~/.bashrc.d && \
+    echo "export MAMBA_ROOT_PREFIX=/openhands/micromamba" >> ~/.bashrc.d/micromamba.sh && \
+    echo "export PATH=/openhands/micromamba/bin:\$PATH" >> ~/.bashrc.d/micromamba.sh && \
+    echo 'eval "$(micromamba shell hook --shell=bash)"' >> ~/.bashrc.d/micromamba.sh && \
+    echo "source ~/.bashrc.d/micromamba.sh" >> ~/.bashrc && \
+    source ~/.bashrc
 
 # Initialize and create the conda environment
 SHELL ["/bin/bash", "-c"]
 RUN source ~/.bashrc && \
-    eval "$(micromamba shell hook --shell=bash)" && \
-    micromamba create -n openhands python=3.12 -c conda-forge -y && \
-    micromamba activate openhands
+    micromamba create -y -n openhands -c conda-forge python=3.12 && \
+    micromamba clean --all --yes
 
 # Install Python dependencies
 RUN source ~/.bashrc && \
-    eval "$(micromamba shell hook --shell=bash)" && \
-    micromamba activate openhands && \
-    micromamba install -n openhands -c conda-forge \
+    micromamba install -y -n openhands -c conda-forge \
     pip \
     poetry \
     && micromamba clean --all --yes
 
 # Install additional dependencies
 RUN source ~/.bashrc && \
-    eval "$(micromamba shell hook --shell=bash)" && \
-    micromamba activate openhands && \
-    pip install litellm==1.59.9 \
+    micromamba run -n openhands pip install \
+    litellm==1.59.9 \
     termcolor==2.5.0 \
     aiohttp==3.11.11 \
     pydantic==2.10.4 \
@@ -76,19 +74,15 @@ RUN touch README.md
 
 # Install dependencies only
 RUN source ~/.bashrc && \
-    eval "$(micromamba shell hook --shell=bash)" && \
-    micromamba activate openhands && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-root --no-dev
+    micromamba run -n openhands poetry config virtualenvs.create false && \
+    micromamba run -n openhands poetry install --no-root --no-dev
 
 # Copy the rest of the application code
 COPY --chown=openhands:openhands . .
 
 # Install the project itself
 RUN source ~/.bashrc && \
-    eval "$(micromamba shell hook --shell=bash)" && \
-    micromamba activate openhands && \
-    poetry install --no-dev
+    micromamba run -n openhands poetry install --no-dev
 
 # Environment variables for Letta
 ENV LETTA_BASE_URL=https://letta2.oculair.ca
@@ -98,4 +92,4 @@ ENV LETTA_SHOW_REASONING=true
 ENV LETTA_SHOW_USAGE_STATS=true
 
 # Set default command
-CMD ["bash", "-c", "source ~/.bashrc && eval \"$(micromamba shell hook --shell=bash)\" && micromamba activate openhands && python -m openhands.server.app"]
+CMD ["bash", "-c", "source ~/.bashrc && micromamba run -n openhands python -m openhands.server.app"]
