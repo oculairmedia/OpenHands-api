@@ -9,11 +9,10 @@ import_functions(
 import_functions(
     module=file_reader, function_names=file_reader.__all__, target_globals=globals()
 )
-__all__ = file_ops.__all__ + file_reader.__all__
-
-# Add LETTA tool
-letta = letta_tool.LettaTool()
-__all__ += ['letta']
+import_functions(
+    module=letta_tool, function_names=letta_tool.__all__, target_globals=globals()
+)
+__all__ = file_ops.__all__ + file_reader.__all__ + letta_tool.__all__
 
 DOCUMENTATION = ''
 for func_name in __all__:
