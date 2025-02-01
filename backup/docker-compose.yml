@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  openhands:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - LETTA_BASE_URL=${LETTA_BASE_URL}
+      - LETTA_AGENT_ID=${LETTA_AGENT_ID}
+      - LETTA_PASSWORD=${LETTA_PASSWORD}
+      - VITE_BACKEND_HOST=${VITE_BACKEND_HOST}
+      - VITE_USE_TLS=${VITE_USE_TLS}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app

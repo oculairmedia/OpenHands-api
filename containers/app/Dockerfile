@@ -24,8 +24,7 @@ RUN apt-get update -y \
     && apt-get install -y curl make git build-essential \
     && python3 -m pip install poetry==1.8.2  --break-system-packages
 
-COPY ./pyproject.toml ./poetry.lock ./
-RUN touch README.md
+COPY ./pyproject.toml ./poetry.lock ./README.md ./
 RUN export POETRY_CACHE_DIR && poetry install --without evaluation,llama-index --no-root && rm -rf $POETRY_CACHE_DIR
 
 FROM python:3.12.3-slim AS openhands-app
@@ -89,10 +88,14 @@ RUN find /app \! -group app -exec chgrp app {} +
 
 COPY --chown=openhands:app --chmod=770 --from=frontend-builder /app/build ./frontend/build
 COPY --chown=openhands:app --chmod=770 ./containers/app/entrypoint.sh /app/entrypoint.sh
+RUN ls -la /app  # Debug: List contents of /app directory
 
 USER root
 
 WORKDIR /app
+
+RUN ls -la /app  # Debug: List contents of /app directory again
+RUN cat /app/entrypoint.sh  # Debug: Display contents of entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["uvicorn", "openhands.server.listen:app", "--host", "0.0.0.0", "--port", "3000"]
