@@ -1,6 +1,7 @@
 from inspect import signature
 
-from openhands.runtime.plugins.agent_skills import file_ops, file_reader, letta_tool
+from openhands.runtime.plugins.agent_skills import file_ops, file_reader
+from openhands.runtime.plugins.agent_skills.letta_tool.letta import ask_letta, ask_letta_async, StreamingResponse
 from openhands.runtime.plugins.agent_skills.utils.dependency import import_functions
 
 import_functions(
@@ -9,10 +10,8 @@ import_functions(
 import_functions(
     module=file_reader, function_names=file_reader.__all__, target_globals=globals()
 )
-import_functions(
-    module=letta_tool, function_names=letta_tool.__all__, target_globals=globals()
-)
-__all__ = file_ops.__all__ + file_reader.__all__ + letta_tool.__all__
+
+__all__ = file_ops.__all__ + file_reader.__all__ + ['ask_letta', 'ask_letta_async', 'StreamingResponse']
 
 DOCUMENTATION = ''
 for func_name in __all__:
@@ -27,7 +26,7 @@ for func_name in __all__:
 
         fn_signature = f'{func.__name__}' + str(signature(func))
         DOCUMENTATION += f'{fn_signature}:\n{cur_doc}\n\n'
-    elif isinstance(func, letta_tool.LettaTool):
+    elif isinstance(func, LettaTool):
         DOCUMENTATION += f'letta:\n    {func.description}\n\n'
 
 

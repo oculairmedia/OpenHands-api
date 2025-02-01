@@ -1,3 +1,5 @@
+__all__ = ['LettaTool']
+
 class LettaTool:
     def __init__(self):
         self.name = "LETTA Tool"

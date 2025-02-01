@@ -145,6 +145,13 @@ class ActionExecutor:
         logger.debug('Runtime client initialized.')
         self._initialized = True
 
+        # Debug logging for available skills
+        if 'jupyter' in self.plugins:
+            jupyter_plugin = self.plugins['jupyter']
+            code = "from openhands.runtime.plugins.agent_skills.agentskills import __all__ as skills; print(f'Available skills: {skills}')"
+            obs = await jupyter_plugin.run(IPythonRunCellAction(code=code))
+            logger.debug(f"Skills debug output: {obs.content}")
+
     @property
     def initialized(self) -> bool:
         return self._initialized
