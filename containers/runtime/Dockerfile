@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     wget \
+    bzip2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create openhands user and directories
@@ -24,8 +25,9 @@ WORKDIR /openhands
 
 # Install micromamba
 RUN mkdir -p /openhands/micromamba/bin && \
-    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj -C /openhands/micromamba/bin/ bin/micromamba && \
+    wget -qO- https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /openhands/micromamba/bin/ bin/micromamba && \
     chmod +x /openhands/micromamba/bin/micromamba && \
+    echo "source /openhands/micromamba/etc/profile.d/micromamba.sh" >> ~/.bashrc && \
     /openhands/micromamba/bin/micromamba shell init -s bash -p /openhands/micromamba
 
 # Initialize and create the conda environment
