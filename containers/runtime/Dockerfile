@@ -24,20 +24,23 @@ USER openhands
 WORKDIR /openhands
 
 # Install micromamba
-RUN mkdir -p /openhands/micromamba/bin && \
-    wget -qO- https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj -C /openhands/micromamba/bin/ bin/micromamba && \
-    chmod +x /openhands/micromamba/bin/micromamba && \
-    echo "source /openhands/micromamba/etc/profile.d/micromamba.sh" >> ~/.bashrc && \
-    /openhands/micromamba/bin/micromamba shell init -s bash -p /openhands/micromamba
+RUN cd /openhands/micromamba/bin && \
+    wget -q https://micro.mamba.pm/api/micromamba/linux-64/latest -O - | tar -xj && \
+    chmod +x micromamba && \
+    ./micromamba shell init -s bash -p /openhands/micromamba && \
+    echo "source /openhands/micromamba/etc/profile.d/micromamba.sh" >> ~/.bashrc
 
 # Initialize and create the conda environment
 SHELL ["/bin/bash", "-c"]
 RUN source ~/.bashrc && \
+    eval "$(micromamba shell hook --shell=bash)" && \
     micromamba create -n openhands python=3.12 -c conda-forge -y && \
     micromamba activate openhands
 
 # Install Python dependencies
 RUN source ~/.bashrc && \
+    eval "$(micromamba shell hook --shell=bash)" && \
+    micromamba activate openhands && \
     micromamba install -n openhands -c conda-forge \
     pip \
     poetry \
@@ -45,6 +48,7 @@ RUN source ~/.bashrc && \
 
 # Install additional dependencies
 RUN source ~/.bashrc && \
+    eval "$(micromamba shell hook --shell=bash)" && \
     micromamba activate openhands && \
     pip install litellm==1.59.9 \
     termcolor==2.5.0 \
@@ -72,6 +76,7 @@ RUN touch README.md
 
 # Install dependencies only
 RUN source ~/.bashrc && \
+    eval "$(micromamba shell hook --shell=bash)" && \
     micromamba activate openhands && \
     poetry config virtualenvs.create false && \
     poetry install --no-root --no-dev
@@ -81,6 +86,7 @@ COPY --chown=openhands:openhands . .
 
 # Install the project itself
 RUN source ~/.bashrc && \
+    eval "$(micromamba shell hook --shell=bash)" && \
     micromamba activate openhands && \
     poetry install --no-dev
 
@@ -92,4 +98,4 @@ ENV LETTA_SHOW_REASONING=true
 ENV LETTA_SHOW_USAGE_STATS=true
 
 # Set default command
-CMD ["bash", "-c", "source ~/.bashrc && micromamba activate openhands && python -m openhands.server.app"]
+CMD ["bash", "-c", "source ~/.bashrc && eval \"$(micromamba shell hook --shell=bash)\" && micromamba activate openhands && python -m openhands.server.app"]
