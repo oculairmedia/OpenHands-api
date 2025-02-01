@@ -29,6 +29,7 @@ from openhands.events.action import (
     IPythonRunCellAction,
     MessageAction,
 )
+from openhands.runtime.plugins.agent_skills.letta_tool.letta_tool import LettaTool
 from openhands.events.event import FileEditSource, FileReadSource
 from openhands.events.tool import ToolCallMetadata
 
@@ -574,6 +575,16 @@ def response_to_actions(response: ModelResponse) -> list[Action]:
                         f'Missing required argument "url" in tool call {tool_call.function.name}'
                     )
                 action = BrowseURLAction(url=arguments['url'])
+            elif tool_call.function.name == 'letta_tool':
+                if 'text' not in arguments:
+                    raise FunctionCallValidationError(
+                        f'Missing required argument "text" in tool call {tool_call.function.name}'
+                    )
+                result = letta_tool.execute(
+                    text=arguments['text'],
+                    target_language=arguments.get('target_language', 'en')
+                )
+                action = MessageAction(content=json.dumps(result, indent=2), wait_for_response=True)
             else:
                 raise FunctionCallNotExistsError(
                     f'Tool {tool_call.function.name} is not registered. (arguments: {arguments}). Please check the tool name and retry with an existing tool.'
@@ -599,10 +610,34 @@ def response_to_actions(response: ModelResponse) -> list[Action]:
     return actions
 
 
+LettaToolParam = ChatCompletionToolParam(
+    type='function',
+    function=ChatCompletionToolParamFunctionChunk(
+        name='letta_tool',
+        description='Language Evaluation and Text Translation Assistant',
+        parameters={
+            'type': 'object',
+            'properties': {
+                'text': {
+                    'type': 'string',
+                    'description': 'The input text to process',
+                },
+                'target_language': {
+                    'type': 'string',
+                    'description': 'The target language for translation (default: English)',
+                    'default': 'en',
+                },
+            },
+            'required': ['text'],
+        },
+    ),
+)
+
 def get_tools(
     codeact_enable_browsing: bool = False,
     codeact_enable_llm_editor: bool = False,
     codeact_enable_jupyter: bool = False,
+    codeact_enable_letta: bool = False,
 ) -> list[ChatCompletionToolParam]:
     tools = [CmdRunTool, FinishTool]
     if codeact_enable_browsing:
@@ -614,4 +649,8 @@ def get_tools(
         tools.append(LLMBasedFileEditTool)
     else:
         tools.append(StrReplaceEditorTool)
+    if codeact_enable_letta:
+        tools.append(LettaToolParam)
     return tools
+
+letta_tool = LettaTool()

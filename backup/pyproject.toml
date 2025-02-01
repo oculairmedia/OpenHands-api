@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "openhands-ai"
+version = "0.22.0"
+description = "OpenHands AI Agent"
+authors = ["OpenHands Team <team@all-hands.dev>"]
+packages = [
+    { include = "openhands" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiohttp = "^3.11.0"
+pydantic = "^2.10.0"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
